@@ -12,7 +12,7 @@ class AIChat {
     const { prompt } = req.body;
     try {
       const response = await openai.createCompletion({
-        model: "text-ada-001",
+        model: "text-davinci-003",
         prompt: prompt,
         n: 1,
         temperature: 0.9,
