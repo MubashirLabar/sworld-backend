@@ -2,7 +2,7 @@ const { Configuration, OpenAIApi } = require("openai");
 // const env = require("../config/envConfig");
 
 const configuration = new Configuration({
-  apiKey: "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",
+  apiKey: "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",
 });
 
 const openai = new OpenAIApi(configuration);
@@ -12,7 +12,7 @@ class AIChat {
     const { prompt } = req.body;
     try {
       const response = await openai.createCompletion({
-        model: "text-davinci-003",
+        model: "text-ada-001",
         prompt: prompt,
         n: 1,
         temperature: 0.9,
