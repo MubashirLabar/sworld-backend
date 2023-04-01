@@ -1,14 +1,15 @@
 const express = require("express");
+const bodyParser = require("body-parser");
 const cors = require("cors");
-
 const app = express();
 
 const chatRoutes = require("./routes/chatRoutes");
+const placesRoutes = require("./routes/placesRoutes");
 
 app.use(cors());
 
-// add middleware
-app.use(express.json());
+// Create a middleware to parse JSON request bodies
+app.use(bodyParser.json());
 
 app.get("/", (req, res) => {
   res.json({
@@ -18,6 +19,7 @@ app.get("/", (req, res) => {
 
 // user routes
 app.use("/api", chatRoutes);
+app.use("/api", placesRoutes);
 
 const port = 5000;
 
