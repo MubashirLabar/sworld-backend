@@ -1,29 +1,38 @@
 const { Configuration, OpenAIApi } = require("openai");
-// const env = require("../config/envConfig");
+const connection = require("../config/database");
+const { searchWithAI, removeNoiseFromContent } = require("../utils/common");
 
 const configuration = new Configuration({
-  apiKey: "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",
+  apiKey: "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",
 });
-
 const openai = new OpenAIApi(configuration);
 
 class AIChat {
-  async createMessage(req, res) {
-    const { prompt } = req.body;
+  async answer(req, res) {
+    const { prompt, similarity_threshold = 0.5, match_count = 1 } = req.body;
+    const searchResponse = await searchWithAI(
+      prompt,
+      similarity_threshold,
+      match_count
+    );
+
     try {
       const response = await openai.createCompletion({
         model: "text-davinci-003",
         prompt: prompt,
         n: 1,
-        temperature: 0.9,
+        temperature: 0.5,
         max_tokens: 1000,
         top_p: 1,
         frequency_penalty: 0.0,
         presence_penalty: 0.6,
       });
       const description = response.data.choices;
-      return res.status(201).json({
+      const places = searchResponse?.results ? searchResponse.results : [];
+
+      return res.status(200).json({
         text: description[0]?.text || "",
+        places,
       });
     } catch (error) {
       if (error.response) {
@@ -35,6 +44,24 @@ class AIChat {
       }
       res.status(400).json({
         error: "The image could not be generated",
+      });
+    }
+  }
+
+  async search(req, res) {
+    const { prompt, similarity_threshold = 0, match_count = 3 } = req.body;
+
+    const response = await searchWithAI(
+      prompt,
+      similarity_threshold,
+      match_count
+    );
+
+    if (response.error) {
+      return res.status(500).json(response);
+    } else {
+      return res.status(200).json({
+        data: response.results,
       });
     }
   }

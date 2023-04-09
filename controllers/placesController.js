@@ -2,13 +2,15 @@ const connection = require("../config/database");
 
 class Places {
   async getPlaces(req, res) {
-    const query = `SELECT * FROM sw_place LIMIT 1`;
+    const query = `SELECT * FROM sw_place  WHERE oid = 60`;
 
     connection.query(query, function (error, results, fields) {
       if (error) {
         console.log("fetchPlaces error...", error);
         return res.status(500).json("Something is wrong!");
       } else {
+        console.log("results....", results[0].embed);
+
         return res.status(200).json({
           data: results,
         });

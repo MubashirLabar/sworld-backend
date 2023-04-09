@@ -1,9 +1,10 @@
 const { Configuration, OpenAIApi } = require("openai");
 const connection = require("../config/database");
+const { removeNoiseFromContent } = require("../utils/common");
 
 const generateEmbeddings = async (data) => {
   const configuration = new Configuration({
-    apiKey: "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",
+    apiKey: "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",
   });
 
   const openai = new OpenAIApi(configuration);
@@ -13,22 +14,24 @@ const generateEmbeddings = async (data) => {
     const { oid, name, description, historical_descr } = item;
     const content = name + " " + description + " " + historical_descr;
 
+    const preprocessedContent = removeNoiseFromContent(content);
+
     const embeddingResponse = await openai.createEmbedding({
       model: "text-embedding-ada-002",
-      input: content,
+      input: preprocessedContent,
     });
 
     if (embeddingResponse.status !== 200) {
       console.log("error", embeddingResponse);
     } else {
-      const [{ embedding = Buffer.alloc(1536 * 4) }] =
-        embeddingResponse.data.data;
+      const [{ embedding }] = embeddingResponse.data.data;
 
-      console.log("embedding...", embedding);
+      const serializedEmbeddings = embedding.join();
 
-      const query = `UPDATE sw_place SET embed="${embedding}" WHERE oid=${oid}`;
+      const query = "UPDATE sw_place SET embed = ? WHERE oid = ?";
+      const values = [serializedEmbeddings, oid];
 
-      connection.query(query, [oid], function (error, results, fields) {
+      connection.query(query, values, function (error, results, fields) {
         if (error) {
           console.log("not saved...", error);
         } else {
@@ -42,7 +45,8 @@ const generateEmbeddings = async (data) => {
 };
 
 (async () => {
-  const query = `SELECT * FROM sw_place LIMIT 1`;
+  // const query = `SELECT * FROM sw_place`;
+  const query = `SELECT * FROM sw_place WHERE embed IS NULL OR JSON_LENGTH(embed) <= 0`;
 
   const places = await new Promise((resolve, reject) => {
     connection.query(query, function (error, results, fields) {
