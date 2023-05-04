@@ -58,7 +58,7 @@ const searchWithQuery = async (prompt, similarity_threshold, match_count) => {
   const threshold = 0;
   try {
     // const query = `SELECT * FROM sw_place WHERE name LIKE '%${prompt}%' OR description LIKE '%${prompt}%'`;
-    const query = `SELECT * FROM sw_place WHERE MATCH(name, description) AGAINST('${prompt}' IN NATURAL LANGUAGE MODE) LIMIT ${match_count}`;
+    const query = `SELECT * FROM sw_place WHERE MATCH(name, description) AGAINST('${prompt}' IN NATURAL LANGUAGE MODE) LIMIT 5`;
 
     const results = await new Promise((resolve, reject) => {
       connection.query(query, function (error, results, fields) {
