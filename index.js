@@ -3,6 +3,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
+app.use(express.json());
 
 const chatRoutes = require("./routes/chatRoutes");
 const placesRoutes = require("./routes/placesRoutes");
@@ -12,7 +13,7 @@ app.use(cors());
 // Create a middleware to parse JSON request bodies
 app.use(bodyParser.json());
 
-app.get("/", (req, res) => {
+app.use("/", (req, res) => {
   res.json({
     msg: "Welcome on world App!",
   });
