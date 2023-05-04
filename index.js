@@ -13,7 +13,7 @@ app.use(cors());
 // Create a middleware to parse JSON request bodies
 app.use(bodyParser.json());
 
-app.use("/", (req, res) => {
+app.get("/", (req, res) => {
   res.json({
     msg: "Welcome on world App!",
   });
