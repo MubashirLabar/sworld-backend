@@ -2,7 +2,7 @@ const connection = require("../config/database");
 
 class Places {
   async getPlaces(req, res) {
-    const query = `SELECT * FROM sw_place  WHERE oid = 60`;
+    const query = `SELECT * FROM sw_place LIMIT 300`;
 
     connection.query(query, function (error, results, fields) {
       if (error) {

@@ -1,16 +1,16 @@
 const { Configuration, OpenAIApi } = require("openai");
+const { searchWithAI, searchWithQuery } = require("../utils/common");
 const connection = require("../config/database");
-const { searchWithAI, removeNoiseFromContent } = require("../utils/common");
 
 const configuration = new Configuration({
-  apiKey: "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",
+  apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
 
 class AIChat {
   async answer(req, res) {
     const { prompt, similarity_threshold = 0.5, match_count = 1 } = req.body;
-    const searchResponse = await searchWithAI(
+    const searchResponse = await searchWithQuery(
       prompt,
       similarity_threshold,
       match_count
@@ -49,9 +49,9 @@ class AIChat {
   }
 
   async search(req, res) {
-    const { prompt, similarity_threshold = 0, match_count = 3 } = req.body;
+    const { prompt, similarity_threshold = 0.01, match_count = 5 } = req.body;
 
-    const response = await searchWithAI(
+    const response = await searchWithQuery(
       prompt,
       similarity_threshold,
       match_count

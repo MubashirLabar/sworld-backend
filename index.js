@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -21,7 +22,7 @@ app.get("/", (req, res) => {
 app.use("/api", chatRoutes);
 app.use("/api", placesRoutes);
 
-const port = 5000;
+const port = process.env.PORT;
 
 app.listen(port, () => {
   console.log("server is running on at port number : ", port);

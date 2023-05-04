@@ -4,16 +4,16 @@ const { Configuration, OpenAIApi } = require("openai");
 const connection = require("../config/database");
 
 const configuration = new Configuration({
-  apiKey: "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",
+  apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
 
 const searchWithAI = async (prompt, similarity_threshold, match_count) => {
-  const preprocessedContent = removeNoiseFromContent(prompt);
+  // const preprocessedContent = removeNoiseFromContent(prompt);
 
   const embeddingResponse = await openai.createEmbedding({
     model: "text-embedding-ada-002",
-    input: preprocessedContent,
+    input: prompt,
   });
 
   if (embeddingResponse.status !== 200) {
@@ -24,19 +24,17 @@ const searchWithAI = async (prompt, similarity_threshold, match_count) => {
   } else {
     try {
       const [{ embedding }] = embeddingResponse.data.data;
-
-      // Convert the embedding to a comma-separated string
       const embeddingString = embedding.join();
 
       const query = `SELECT *,
-      ROUND(
-        (1 - COSINE_SIMILARITY(sw_place.embed, ?)) * 100,
-        2
-      ) AS similarity
-      FROM sw_place
-      HAVING similarity > ?
-      ORDER BY similarity DESC   
-      LIMIT ?;
+        ROUND(
+          (1 - COSINE_SIMILARITY(testing_posts.embedding, ?)) * 100,
+          2
+        ) AS similarity
+        FROM testing_posts
+        HAVING similarity > ?
+        ORDER BY similarity DESC   
+        LIMIT ?;
     `;
 
       const [results, fields] = await connection
@@ -56,6 +54,32 @@ const searchWithAI = async (prompt, similarity_threshold, match_count) => {
   }
 };
 
+const searchWithQuery = async (prompt, similarity_threshold, match_count) => {
+  const threshold = 0;
+  try {
+    // const query = `SELECT * FROM sw_place WHERE name LIKE '%${prompt}%' OR description LIKE '%${prompt}%'`;
+    const query = `SELECT * FROM sw_place WHERE MATCH(name, description) AGAINST('${prompt}' IN NATURAL LANGUAGE MODE) LIMIT 10`;
+
+    const results = await new Promise((resolve, reject) => {
+      connection.query(query, function (error, results, fields) {
+        if (error) {
+          console.log("fetchPlaces error...", error);
+          reject({ error: "Something is wrong!" });
+        } else {
+          resolve({ results });
+        }
+      });
+    });
+    // console.log("results...", results);
+    return results;
+  } catch (e) {
+    console.log("catch error...", e.message);
+    return {
+      error: "Something is wrong!",
+    };
+  }
+};
+
 const removeNoiseFromContent = (content) => {
   // Decode HTML entities
   const decodedContent = he.decode(content);
@@ -65,20 +89,16 @@ const removeNoiseFromContent = (content) => {
   const stopwords = new Set(natural.stopwords);
   const tokens = tokenizer.tokenize(decodedContent);
   const filteredTokens = tokens.filter(
-    (token) => !stopwords.has(token) && /\w/.test(token)
+    (token) => !stopwords.has(token) && /\w+(['-]\w+)*/.test(token)
   );
 
-  // Stem the tokens
-  const stemmer = natural.PorterStemmer;
-  const stemmedTokens = filteredTokens.map((token) => stemmer.stem(token));
-
   // Join the stemmed tokens back into a string
-  const preprocessedContent = stemmedTokens.join(" ");
-
+  const preprocessedContent = filteredTokens.join(" ");
   return preprocessedContent;
 };
 
 module.exports = {
   searchWithAI,
+  searchWithQuery,
   removeNoiseFromContent,
 };
