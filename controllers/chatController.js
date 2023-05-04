@@ -9,25 +9,22 @@ const openai = new OpenAIApi(configuration);
 
 class AIChat {
   async answer(req, res) {
-    const { prompt, similarity_threshold = 0.5, match_count = 1 } = req.body;
-    const searchResponse = await searchWithQuery(
-      prompt,
-      similarity_threshold,
-      match_count
-    );
-
+    const { prompt, similarity_threshold = 0.5, match_count = 5 } = req.body;
     try {
-      const response = await openai.createCompletion({
-        model: "text-davinci-003",
-        prompt: prompt,
-        n: 1,
-        temperature: 0.5,
-        max_tokens: 1000,
-        top_p: 1,
-        frequency_penalty: 0.0,
-        presence_penalty: 0.6,
-      });
-      const description = response.data.choices;
+      const [searchResponse, openaiResponse] = await Promise.all([
+        searchWithQuery(prompt, similarity_threshold, match_count),
+        openai.createCompletion({
+          model: "text-davinci-003",
+          prompt: prompt,
+          n: 1,
+          temperature: 0.5,
+          max_tokens: 1000,
+          top_p: 1,
+          frequency_penalty: 0.0,
+          presence_penalty: 0.6,
+        }),
+      ]);
+      const description = openaiResponse.data.choices;
       const places = searchResponse?.results ? searchResponse.results : [];
 
       return res.status(200).json({
