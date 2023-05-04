@@ -11,10 +11,5 @@
       "src": "/(.*)",
       "dest": "/"
     }
-  ],
-  "serverless": {
-    "function": {
-      "maxDuration": 20
-    }
-  }
+  ]
 }
