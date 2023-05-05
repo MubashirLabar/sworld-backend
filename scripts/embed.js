@@ -1,7 +1,7 @@
 const { Configuration, OpenAIApi } = require("openai");
-const { translate } = require("bing-translate-api");
+// const { translate } = require("bing-translate-api");
 const connection = require("../config/database");
-const { removeNoiseFromContent } = require("../utils/common");
+// const { removeNoiseFromContent } = require("../utils/common");
 
 const generateEmbeddings = async (data) => {
   // const configuration = new Configuration({
@@ -13,7 +13,7 @@ const generateEmbeddings = async (data) => {
   for (let i = 0; i < data.length; i++) {
     const item = data[i];
     const { oid, name, description, historical_descr } = item;
-    const content = name;
+    // const content = name;
 
     // const res = await translate(content, null, "en");
 
@@ -51,16 +51,16 @@ const generateEmbeddings = async (data) => {
   }
 };
 
-const translation = async (places) => {
-  for (const place of places) {
-    try {
-      const res = await translate(place.name, null, "en");
-      console.log("response", res.text, "....", res.translation);
-    } catch (err) {
-      console.error("error...", place.oid, err);
-    }
-  }
-};
+// const translation = async (places) => {
+//   for (const place of places) {
+//     try {
+//       const res = await translate(place.name, null, "en");
+//       console.log("response", res.text, "....", res.translation);
+//     } catch (err) {
+//       console.error("error...", place.oid, err);
+//     }
+//   }
+// };
 
 (async () => {
   const query = `SELECT * FROM sw_place`;

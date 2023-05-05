@@ -56,7 +56,7 @@ const searchWithAI = async (prompt, similarity_threshold, match_count) => {
 
 const searchWithQuery = async (prompt, similarity_threshold, match_count) => {
   try {
-    const query = `SELECT * FROM sw_place WHERE MATCH(name, description) AGAINST('${prompt}' IN NATURAL LANGUAGE MODE) LIMIT 1`;
+    const query = `SELECT * FROM sw_place WHERE MATCH(name, description) AGAINST('${prompt}' IN NATURAL LANGUAGE MODE) LIMIT 5`;
 
     const results = await new Promise((resolve, reject) => {
       connection.query(query, function (error, results, fields) {

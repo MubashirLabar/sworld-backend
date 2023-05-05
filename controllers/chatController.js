@@ -9,7 +9,7 @@ const openai = new OpenAIApi(configuration);
 
 class AIChat {
   async answer(req, res) {
-    const { prompt, similarity_threshold = 0.5, match_count = 5 } = req.body;
+    const { prompt, similarity_threshold = 0.5, match_count = 1 } = req.body;
     try {
       const [searchResponse, openaiResponse] = await Promise.all([
         searchWithQuery(prompt, similarity_threshold, match_count),
