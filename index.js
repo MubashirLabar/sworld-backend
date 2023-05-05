@@ -3,12 +3,12 @@ const express = require("express");
 // const bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
-app.use(express.json());
 
 const chatRoutes = require("./routes/chatRoutes");
 const placesRoutes = require("./routes/placesRoutes");
 
 app.use(cors());
+app.use(express.json());
 
 // app.use(bodyParser.json());
 
