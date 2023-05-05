@@ -10,7 +10,6 @@ const placesRoutes = require("./routes/placesRoutes");
 
 app.use(cors());
 
-// Create a middleware to parse JSON request bodies
 app.use(bodyParser.json());
 
 app.get("/", (req, res) => {
