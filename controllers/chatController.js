@@ -7,10 +7,26 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
+const chatRules = [
+  { input: "hi", output: "Hello! How can I assist you today?" },
+  { input: "hello!", output: "Hi there! How can I help you today?" },
+  { input: "hello", output: "Hi there! How can I help you today?" },
+  { input: "how are you?", output: "I'm doing well, thank you for asking." },
+  { input: "how are you", output: "I'm doing well, thank you for asking." },
+];
+
 class AIChat {
   async answer(req, res) {
     const { prompt, similarity_threshold = 0.5, match_count = 1 } = req.body;
+    const rule = chatRules.find((r) => r.input === prompt.toLowerCase());
     try {
+      if (rule) {
+        return res.status(200).json({
+          text: rule.output,
+          places: [],
+        });
+      }
+
       const [searchResponse, openaiResponse] = await Promise.all([
         searchWithQuery(prompt, similarity_threshold, match_count),
         openai.createCompletion({
