@@ -1,6 +1,5 @@
 const { Configuration, OpenAIApi } = require("openai");
-const { searchWithAI, searchWithQuery } = require("../utils/common");
-const connection = require("../config/database");
+const { searchWithQuery } = require("../utils/common");
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
