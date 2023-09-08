@@ -19,24 +19,25 @@ class AIChat {
     const { prompt, similarity_threshold = 0.5, match_count = 1 } = req.body;
     const rule = chatRules.find((r) => r.input === prompt.toLowerCase());
     try {
-      if (rule) {
-        return res.status(200).json({
-          text: rule.output,
-          places: [],
-        });
-      }
+      // if (rule) {
+      //   return res.status(200).json({
+      //     text: rule.output,
+      //     places: [],
+      //   });
+      // }
 
       const [searchResponse, openaiResponse] = await Promise.all([
         searchWithQuery(prompt, similarity_threshold, match_count),
         openai.createCompletion({
           model: "text-davinci-003",
-          prompt: prompt,
-          n: 1,
-          temperature: 0.5,
+          prompt: `You: ${prompt}\nAI:`,
+          // n: 1,
+          temperature: 0,
           max_tokens: 1000,
-          top_p: 1,
-          frequency_penalty: 0.0,
-          presence_penalty: 0.6,
+          top_p: 1.0,
+          frequency_penalty: 0.5,
+          presence_penalty: 0.0,
+          stop: ["You:"],
         }),
       ]);
       const description = openaiResponse.data.choices;
